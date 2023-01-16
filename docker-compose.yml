@@ -3,4 +3,4 @@ services:
     python_nlp:
         build: .
         volumes:
-            - ./python:/app
+            - .:/app
