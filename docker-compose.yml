@@ -1,6 +1,6 @@
 version: '3'
 services:
     python_nlp:
-        build: ./python
+        build: .
         volumes:
             - ./python:/app
