@@ -8,6 +8,7 @@ RUN python3 -m spacy download de_dep_news_trf
 RUN python3 -m pip install flask
 RUN python3 -m pip install numpy
 RUN python3 -m pip install nltk
+RUN python3 -m pip install spacy-sentiws
 
 EXPOSE 5000
 
