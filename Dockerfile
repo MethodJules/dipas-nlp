@@ -9,6 +9,8 @@ RUN python3 -m pip install flask
 RUN python3 -m pip install numpy
 RUN python3 -m pip install nltk
 RUN python3 -m pip install spacy-sentiws
+RUN python3 -m pip install pandas
+RUN python3 -m pip install openpyxl
 
 EXPOSE 5000
 
