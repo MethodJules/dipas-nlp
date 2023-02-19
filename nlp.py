@@ -3,7 +3,15 @@ import csv
 import nltk
 nltk.download('stopwords')
 nltk.download('punkt')
-from spacy import displacy
+# from spacy import displacy
+from spacy_sentiws import spaCySentiWS
+
+nlp = spacy.load('de_core_news_sm')
+nlp.add_pipe('sentiws', config={'sentiws_path': 'data/sentiws'})
+doc = nlp('Die Dummheit der Unterwerfung blüht in hübschen Farben.')
+
+for token in doc:
+    print('{},{},{}'.format(token.text, token._.sentiws, token.pos_))
 '''
 nlp = spacy.load("en_core_web_sm")
 doc = nlp("Apple is looking at buying U.K. startup for $1 billion")
@@ -30,3 +38,4 @@ for token in doc:
 # create a html code to show
 html = displacy.render([doc], style="dep", page=False)
 print(html)
+'''

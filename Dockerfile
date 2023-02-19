@@ -9,6 +9,7 @@ RUN python3 -m pip install flask
 RUN python3 -m pip install numpy
 RUN python3 -m pip install nltk
 RUN python3 -m pip install spacy-sentiws
+RUN python3 -m pip install neo4j
 
 EXPOSE 5000
 
