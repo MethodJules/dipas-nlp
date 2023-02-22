@@ -18,9 +18,14 @@ class neo4jConnector(object):
         except:
             raise
 
-    def createRootNode(self, contributionId):
+    def createContributionNode(self, contributionId, text):
         with self._driver.session() as session:
-            query = "CREATE (rn:RootNode {contributionId:'" + str(contributionId) + "'})"
+            query = "CREATE (con:ContributionNode {contributionId:'" + str(contributionId) + "', text:'" + text + "})"
+            session.run(query)
+
+    def createCommentNode(self, commentId, text, sentiment_score):
+        with self._driver.session() as session:
+            query = "CREATE (com:commentNode {contributionId:'" + str(commentId) + "', text:'" + text + "', sentiment_score:'" + str(sentiment_score) +"'})"
             session.run(query)
 
     def close(self):

@@ -28,6 +28,12 @@ class nlpProcess(object):
             sentiment_scores.append({'text': token.text, 'sentiment_score': token._.sentiws, 'POS': token.pos_})
         return sentiment_scores
 
+    def getOverallSentimentScore(self, sentiment_scores):
+        res = [ sub['sentiment_score'] for sub in sentiment_scores]
+        overallSentimentScore = sum(filter(None, res))
+        return overallSentimentScore
+                
+
     def nameEntityRecognition(self, text):
         nameEntityRecognitions = []
         doc = self.nlp(text)

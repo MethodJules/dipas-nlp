@@ -7,6 +7,8 @@ neo4jCon = neo4jConnector()
 print("Waiting....")
 time.sleep(0.5)
 print("Continuing...")
+
+comment = 'Die Einrichtung der "Ruhigen Gebiete" ist für uns Anwohner in Kirchwerder natürlich sehr zu begrüßen. Allerdings besteht nach wie vor das seit langem bekannte Problem des exzessiven und extrem lärmbelastenden Motorradverkehrs auf den Straßen am Deich (insbesondere auch in der Nähe der Kirchwerder Wiesen). Es wäre wirklich begrüßenswert und wichtig, dass die Stadt hier sehr viel häufiger Verkehrskontrollen vornimmt, damit die gewünschte Ruhe auch gewährleistet und geschützt werden kann.'
 #scores = nlpProc.analyzeSentiments('Die Dummheit der Unterwerfung blüht in hübschen Farben.')
 #print(scores)
 
@@ -17,10 +19,12 @@ print("Continuing...")
 tries = 3
 for i in range(tries):
     try:
+        # connect to the graph database
         nlpProc.connect_db()
-        scores = nlpProc.analyzeSentiments('Die Dummheit der Unterwerfung blüht in hübschen Farben.')
-        print(scores)
-        neo4jCon.createRootNode(10)
+        # calculate the the sentiment score of a comment [(-1)--(0)--(+1)]
+        scores = nlpProc.analyzeSentiments(comment)
+        sentiment_score = nlpProc.getOverallSentimentScore(scores)
+        neo4jCon.createCommentNode(4, comment, sentiment_score)
     except Exception as e:
         if (type(e).__name__=="ServiceUnavilable" and i < tries -1):
             print("Retry connecting...")
