@@ -24,4 +24,14 @@ class nlpProcess(object):
             # print('{},{},{}'.format(token.text, token._.sentiws, token.pos_))
             sentiment_scores.append({'text': token.text, 'sentiment_score': token._.sentiws, 'POS': token.pos_})
         return sentiment_scores
-
+    
+    def findEntities(self, comments_input):
+        entity_dict = {}
+        for id, comment in comments_input.items():
+            doc = self.nlp(comment)
+            entity_list = []
+            for ent in doc.ents:
+                entity_list.append({'Entität: ': ent.text,'Typ: ': ent.label_})
+            entity_dict[id] = entity_list
+        return entity_dict
+    
