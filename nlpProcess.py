@@ -27,7 +27,7 @@ class nlpProcess(object):
     
     def findEntities(self, comments_input):
         '''
-        Analyzes for a dictionary of comments which entities are contained in each of the comments
+        Analyzes for a dictionary of comments which entities are contained in each of the comments.
 
         Parameters
         -----------
@@ -50,7 +50,7 @@ class nlpProcess(object):
     
     def extractRelations(self, comment):
         '''
-        Analyzes for comments which relations are contained
+        Analyzes for comments which relations are contained.
 
         Parameters
         -----------
@@ -80,7 +80,7 @@ class nlpProcess(object):
     
     def removeStopwords(self, comments_input):
         '''
-        Removes the stopwords from a comment dictionary
+        Removes the stopwords from a comment dictionary.
 
         Parameters
         -----------
