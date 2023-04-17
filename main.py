@@ -16,6 +16,12 @@ input = {"1": "Es fehlt ein sicherer Radweg in der Behring- und Barnerstraße vo
               " Verlängerung, der Hummelsbüttler Hauptstraße in der Kategorie 2. Der Umstand, dass sich der"
               " Straßenname ändert, kann ja keinen Unterschied ausmachen."}
 
+# Compute sentiment scores
+for id, comment in input.items():
+    scores = nlpProc.analyzeSentiments(comment)
+    print(f"SentimentScores for comment {id}: {scores}")
+
+
 # Identify relations for each comment.
 for id, comment in input.items():
     relations = nlpProc.extractRelations(comment)
