@@ -11,7 +11,7 @@ class nlpProcess(object):
         '''
         Contstructor
         '''
-        self.nlp = spacy.load('de_core_news_sm') # load the german corpora
+        self.nlp = spacy.load('de_core_news_lg') # load the german corpora
         # modify the spacy pipeline
         self.nlp.add_pipe('sentiws', config={'sentiws_path': 'data/sentiws'})
     
@@ -26,6 +26,19 @@ class nlpProcess(object):
         return sentiment_scores
     
     def findEntities(self, comments_input):
+        '''
+        Analyzes for a dictionary of comments which entities are contained in each of the comments
+
+        Parameters
+        -----------
+        comments_input : dict
+            dictionary of comments to analyze in terms of contained entities
+
+        Returns
+        ----------
+        entity_dict : dict
+            dictionary that lists entities for each comment
+        '''
         entity_dict = {}
         for id, comment in comments_input.items():
             doc = self.nlp(comment)
@@ -34,4 +47,56 @@ class nlpProcess(object):
                 entity_list.append({'Entität: ': ent.text,'Typ: ': ent.label_})
             entity_dict[id] = entity_list
         return entity_dict
+    
+    def extractRelations(self, comment):
+        '''
+        Analyzes for comments which relations are contained
+
+        Parameters
+        -----------
+        comment : str
+            comment to analyze in terms of contained relations
+
+        Returns
+        ----------
+        relations : list 
+            list that contains all relations in a comment
+        '''
+        doc = self.nlp(comment)
+        relations = []
+        for sent in doc.sents:
+            for tok in sent:
+                if tok.dep_ in ["sb", "sbp"] and tok.head.pos_ == "VERB":
+                    subj = tok
+                    verb = tok.head
+                    obj = ""
+                    for child in verb.children:
+                        if child.dep_ == "da":
+                            obj = child
+                    
+                    relations.append((subj, verb, obj))
+
+        return relations
+    
+    def removeStopwords(self, comments_input):
+        '''
+        Removes the stopwords from a comment dictionary
+
+        Parameters
+        -----------
+        comments_input : dict
+            dictionary of comments where for each the stopwords shall be removed
+
+        Returns
+        ----------
+        filtered_dict : dict 
+            dictionary that contains all comments without the identified stopwords
+        '''
+        filtered_dict = {}
+        for id, comment in comments_input.items():
+            doc = self.nlp(comment)
+            filtered_tokens = [token.text for token in doc if not token.is_stop]
+            filtered_dict[id] = filtered_tokens
+
+        return filtered_dict
     
