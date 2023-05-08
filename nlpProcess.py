@@ -100,3 +100,27 @@ class nlpProcess(object):
 
         return filtered_dict
     
+    def filterNames(self, comments_input):
+        '''
+        Removes real names from comments due to privacy requirements.
+
+        Parameters
+        -----------
+        comments_input : dict
+            dictionary of comments which shall be filtered 
+        
+        Returns
+        -----------
+        filtered_dict : dict
+            dictionary containing original comments without real names
+        '''
+        filtered_dict = {}
+        for id, comment in comments_input.items():
+            doc = self.nlp(comment)
+            filteredComment = comment
+            for ent in doc.ents:
+                if ent.label_ == 'PER':
+                    filteredComment = filteredComment.replace(ent.text, "<Klarname entfernt>")
+            filtered_dict[id] = filteredComment
+
+        return filtered_dict
