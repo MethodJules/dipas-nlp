@@ -12,7 +12,7 @@ input = {"1": "Es fehlt ein sicherer Radweg in der Behring- und Barnerstraße vo
               " mehr zum schnellen Fahren auf breiten Straßen verführt werden -" \
               "gerade nachts beim Rennen mit hochmotorisierten Sportwagen. Hier besteht dringend Handlungsbedarf. " \
               "Viele Grüße von einem auto- und vor allem radfahrenden Anwohner",
-         "2": "Aus meiner Sicht fehlt die Glashütter Landstraße ab Stadtgrenze in Verbindung mit deren"
+         "2": "Aus der Sicht von Thorsten Jacobi fehlt die Glashütter Landstraße ab Stadtgrenze in Verbindung mit deren"
               " Verlängerung, der Hummelsbüttler Hauptstraße in der Kategorie 2. Der Umstand, dass sich der"
               " Straßenname ändert, kann ja keinen Unterschied ausmachen."}
 
@@ -34,3 +34,8 @@ print(filtered)
 # Find entities in each comment.
 entities = nlpProc.findEntities(input)
 print(entities)
+
+# Remove real names in comments.
+privacy = nlpProc.filterNames(input)
+print(privacy)
+
