@@ -124,3 +124,27 @@ class nlpProcess(object):
             filtered_dict[id] = filteredComment
 
         return filtered_dict
+    
+    def filterLocations(self, comments_input):
+        '''
+        Removes real names from comments due to privacy requirements.
+
+        Parameters
+        -----------
+        comments_input : dict
+            dictionary of comments which shall be filtered 
+        
+        Returns
+        -----------
+        location_dict : list
+            list containing locations
+        '''
+        locations = []
+        for id, text in comments_input.items():
+            comment = text['text']
+            doc = self.nlp(comment)
+            for ent in doc.ents:
+                if ent.label_ == 'LOC':
+                    locations.append(ent.text)
+
+        return locations
