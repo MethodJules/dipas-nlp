@@ -11,8 +11,7 @@ from spacy.lang.de.stop_words import STOP_WORDS
 
 nlpProc = nlpProcess()
 
-input_data = importJSON.JSONReader("C:/Users/mhammed/Desktop/comments_export2.json")
-
+input = importJSON.JSONReader("comments_export2.json") 
 
 '''
 # Compute sentiment scores
@@ -42,8 +41,8 @@ entities = nlpProc.findEntities(input)
 print(entities)
 '''
 # Remove real names in comments.
-privacy = nlpProc.filterNames(input)
-print(privacy)
+#privacy = nlpProc.filterNames(input)
+#print(privacy)
 
 
 locations = nlpProc.filterLocations(input)
