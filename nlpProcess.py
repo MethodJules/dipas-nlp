@@ -1,5 +1,14 @@
 import spacy
 import os
+from gensim import corpora, models
+import gensim
+import pyLDAvis.gensim as gensimvis
+import pyLDAvis
+import spacy
+from spacy.lang.de.stop_words import STOP_WORDS
+
+from gensim.parsing.preprocessing import STOPWORDS
+from spacy.lang.de import German
 from spacy_sentiws import spaCySentiWS
 
 class nlpProcess(object):
@@ -12,6 +21,9 @@ class nlpProcess(object):
         Contstructor
         '''
         self.nlp = spacy.load('de_core_news_lg') # load the german corpora
+        self.comments = []  # Initialisierung des comments-Attributs
+        self.dictionary = None
+        self.corpus = None
         # modify the spacy pipeline
         self.nlp.add_pipe('sentiws', config={'sentiws_path': 'data/sentiws'})
     
@@ -78,28 +90,29 @@ class nlpProcess(object):
 
         return relations
     
-    def removeStopwords(self, comments_input):
-        '''
-        Removes the stopwords from a comment dictionary.
+    # def removeStopwords(self, comments_input):
+    #     '''
+    #     Removes the stopwords from a comment dictionary.
+    #
+    #     Parameters
+    #     -----------
+    #     comments_input : dict
+    #         dictionary of comments where for each the stopwords shall be removed
+    #
+    #     Returns
+    #     ----------
+    #     filtered_dict : dict
+    #         dictionary that contains all comments without the identified stopwords
+    #     '''
+    #     filtered_dict = {}
+    #     for id, comment in comments_input.items():
+    #         doc = self.nlp(comment)
+    #         filtered_tokens = [token.text for token in doc if not token.is_stop]
+    #         filtered_dict[id] = filtered_tokens
+    #
+    #     return filtered_dict
 
-        Parameters
-        -----------
-        comments_input : dict
-            dictionary of comments where for each the stopwords shall be removed
 
-        Returns
-        ----------
-        filtered_dict : dict 
-            dictionary that contains all comments without the identified stopwords
-        '''
-        filtered_dict = {}
-        for id, comment in comments_input.items():
-            doc = self.nlp(comment)
-            filtered_tokens = [token.text for token in doc if not token.is_stop]
-            filtered_dict[id] = filtered_tokens
-
-        return filtered_dict
-    
     def filterNames(self, comments_input):
         '''
         Removes real names from comments due to privacy requirements.
@@ -148,3 +161,93 @@ class nlpProcess(object):
                     locations.append(ent.text)
 
         return locations
+
+
+    def removeStopwords(self, comments_input):
+        # Laden des deutschen Sprachmodells von spaCy
+        nlp = spacy.load('de_core_news_sm')
+
+        # Benutzerdefinierte Liste von Stoppwörtern
+        custom_stopwords = ['zudem', 'somit', 'mal', 'bitte']
+
+        filtered_list = []
+        for comment in comments_input:
+            doc = nlp(comment['text'])
+            filtered_tokens = [token.text for token in doc if
+                               not token.is_stop and token.text.lower() not in STOP_WORDS and token.text.lower() not in custom_stopwords]
+            filtered_text = ' '.join(filtered_tokens)  # Tokens zu einem Satz verbinden
+            filtered_list.append(filtered_text)
+
+        return filtered_list
+
+
+
+    def performTopicModeling(self, comments_input):
+        comment_texts = [comment['text'] for comment in comments_input.values()]
+        tokenized_texts = []
+
+
+        nlp = spacy.load('de_core_news_sm')
+        STOP_WORDS.update(['m', 'bitte', 'mal', 'zudem', 'unbedingt', 'somit', 'super', 'toll', 'zusätzlich', 'wichtig'])
+        for text in comment_texts:
+            doc = nlp(text)
+            tokens = [token.lemma_ for token in doc if
+                      not token.is_stop and token.is_alpha and token.text.lower() not in STOP_WORDS]
+            tokenized_texts.append(tokens)
+
+        self.dictionary = corpora.Dictionary(tokenized_texts)
+        self.corpus = [self.dictionary.doc2bow(tokens) for tokens in tokenized_texts]
+
+        num_topics = 5
+        lda_model = models.LdaModel(self.corpus, num_topics=num_topics, id2word=self.dictionary, random_state=42)
+
+        topics = {}
+        for topic_id, topic_words in lda_model.show_topics(formatted=False):
+            topics[f"Topic {topic_id + 1}"] = [word for word, _ in topic_words]
+
+        # Sortieren
+        sorted_topics = {key: topics[key] for key in sorted(topics.keys(), key=lambda x: int(x.split()[1]))}
+
+        return sorted_topics
+
+
+
+
+    def labelTopics(self, topics):
+        labeled_topics = {}
+        for topic_id, topic_words in topics.items():
+            if topic_id == 'Topic 1':
+                label = 'Engagement'
+            elif topic_id == 'Topic 2':
+                label = 'Nachhaltigkeit'
+            elif topic_id == 'Topic 3':
+                label = 'Freizeitgestaltung'
+            elif topic_id == 'Topic 4':
+                label = 'Öffentliche Spielplätze'
+            elif topic_id == 'Topic 5':
+                label = 'Spielplatz'
+            # elif topic_id == 'Topic 6':
+            #     label = 'Pflege'
+            # elif topic_id == 'Topic 7':
+            #     label = 'Verbindung'
+            # elif topic_id == 'Topic 8':
+            #     label = 'Spielplatz'
+            # elif topic_id == 'Topic 9':
+            #     label = 'Fußgänger'
+            # elif topic_id == 'Topic 10':
+            #     label = 'Entscheidung'
+            else:
+                label = 'Unbekanntes Thema'
+
+            labeled_topics[label] = topic_words
+
+        return labeled_topics
+
+    def visualizeTopics(self, topics):
+        dictionary = gensim.corpora.Dictionary(topics.values())
+        corpus = [dictionary.doc2bow(words) for words in topics.values()]
+        lda_model = gensim.models.LdaModel(corpus, num_topics=len(topics), id2word=dictionary)
+
+        vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
+        pyLDAvis.save_html(vis_data, 'lda_visualization.html')
+
