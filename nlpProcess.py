@@ -1,5 +1,6 @@
 import spacy
 import os
+<<<<<<< HEAD
 from gensim import corpora, models
 import gensim
 import pyLDAvis.gensim as gensimvis
@@ -9,6 +10,9 @@ from spacy.lang.de.stop_words import STOP_WORDS
 
 from gensim.parsing.preprocessing import STOPWORDS
 from spacy.lang.de import German
+=======
+import regex as re
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden
 from spacy_sentiws import spaCySentiWS
 
 class nlpProcess(object):
@@ -90,6 +94,7 @@ class nlpProcess(object):
 
         return relations
     
+<<<<<<< HEAD
     # def removeStopwords(self, comments_input):
     #     '''
     #     Removes the stopwords from a comment dictionary.
@@ -113,6 +118,8 @@ class nlpProcess(object):
     #     return filtered_dict
 
 
+=======
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden
     def filterNames(self, comments_input):
         '''
         Removes real names from comments due to privacy requirements.
@@ -168,6 +175,7 @@ class nlpProcess(object):
                     locations.append(ent.text)
 
         return locations
+<<<<<<< HEAD
 
 
     def removeStopwords(self, comments_input):
@@ -268,3 +276,36 @@ class nlpProcess(object):
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
         pyLDAvis.save_html(vis_data, 'lda_visualization.html')
 
+=======
+    
+    def removeStopwords(self, input):
+        '''
+        Removes the stopwords from a comment dictionary.
+
+        Parameters
+        -----------
+        input : String
+            comments where the stopwords shall be removed
+
+        Returns
+        ----------
+        filtered_token : String 
+           String that contains comment without the identified stopwords
+        '''
+        
+        doc = self.nlp(input)
+        filtered_tokens = [token.text for token in doc if not token.is_stop]
+        filtered_comment = ' '.join(filtered_tokens)
+
+        return filtered_comment
+
+    def lowercase(self, input):
+        text = input.lower()
+
+        return text
+    
+    def removeSpecialChar(self, input):
+        text = re.sub(r'[^a-zA-Z0-9äöüß\s]', '', input.replace('\n', ''))
+
+        return text
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden

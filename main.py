@@ -43,6 +43,7 @@ print(entities)
 # Remove real names in comments.
 #privacy = nlpProc.filterNames(input)
 #print(privacy)
+<<<<<<< HEAD
 
 
 locations = nlpProc.filterLocations(input)
@@ -86,4 +87,15 @@ for label, words in labeled_topics.items():
     print(f"{label}: {words}")
 
 nlpProc.visualizeTopics(labeled_topics)
+=======
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden
 
+# Remove stopwords from each comment.
+preprocess = {}
+for id, comment in input.items():
+        # Apply lowercase transformation
+        lowercase_text = nlpProc.lowercase(comment['text'])
+        special_char_filter = nlpProc.removeSpecialChar(lowercase_text)
+        no_stop = nlpProc.removeStopwords(special_char_filter)
+        preprocess[id] = no_stop
+print(preprocess)
