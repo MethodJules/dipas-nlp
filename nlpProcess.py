@@ -125,16 +125,23 @@ class nlpProcess(object):
         Returns
         -----------
         filtered_dict : dict
-            dictionary containing original comments without real names
+            dictionary containing only comments containing names
+            format: {comment_id {comment, name}}
         '''
         filtered_dict = {}
         for id, comment in comments_input.items():
-            doc = self.nlp(comment)
-            filteredComment = comment
+            doc = self.nlp(comment['text'])
+            filteredComment = comment['text']
+            names = []
             for ent in doc.ents:
                 if ent.label_ == 'PER':
+                    names.append(ent.text)
                     filteredComment = filteredComment.replace(ent.text, "<Klarname entfernt>")
-            filtered_dict[id] = filteredComment
+            if names:
+                filtered_dict[id] = {
+                    'comment': filteredComment,
+                    'names': names
+                }
 
         return filtered_dict
     
