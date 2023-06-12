@@ -89,6 +89,7 @@ for label, words in labeled_topics.items():
 
 nlpProc.visualizeTopics(labeled_topics)
 
+
 # Remove stopwords from each comment.
 preprocess = {}
 for id, comment in input.items():

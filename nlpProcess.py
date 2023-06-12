@@ -1,4 +1,6 @@
 import spacy
+from spacy.matcher import Matcher
+from spacy.tokens import Span
 import os
 from gensim import corpora, models
 import gensim
@@ -6,11 +8,11 @@ import pyLDAvis.gensim as gensimvis
 import pyLDAvis
 import spacy
 from spacy.lang.de.stop_words import STOP_WORDS
-
 from gensim.parsing.preprocessing import STOPWORDS
 from spacy.lang.de import German
 import regex as re
 from spacy_sentiws import spaCySentiWS
+import synonymMethod
 
 class nlpProcess(object):
     nlp = None
@@ -27,6 +29,9 @@ class nlpProcess(object):
         self.corpus = None
         # modify the spacy pipeline
         self.nlp.add_pipe('sentiws', config={'sentiws_path': 'data/sentiws'})
+
+        self.matcher = Matcher(self.nlp.vocab)
+        self.initializeMatcher()
     
     def analyzeSentiments(self, text):
         sentiment_scores = []
@@ -91,6 +96,7 @@ class nlpProcess(object):
 
         return relations
     
+
     def filterNames(self, comments_input):
         '''
         Removes real names from comments due to privacy requirements.
@@ -146,7 +152,6 @@ class nlpProcess(object):
                     locations.append(ent.text)
 
         return locations
-
 
     def removeStopwords(self, comments_input):
         '''
@@ -206,8 +211,60 @@ class nlpProcess(object):
 
         return sorted_topics
 
+    def initializeMatcher(self):
+        synonyms_time = synonymMethod.get_synonyms("momentan")
+        synonyms_time += synonymMethod.get_synonyms("ständig")
+        synonyms_time += synonymMethod.get_synonyms("immer")
+        lc_time = [synonym.lower() for synonym in synonyms_time]
+        synonyms_absence = synonymMethod.get_synonyms("ausbleiben")
+        lc_absence = [synonym.lower() for synonym in synonyms_absence]
+        
+        # Definition der zu identifizierenden Pattern
+        pattern1 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
+        pattern2 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
+        pattern3 = [{'POS': "ADP"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
+        pattern4 = [{'POS': "ADP"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
+        pattern5 = [{'POS': "AUX", 'LEMMA': {"IN": ["können"]}}]
+        pattern6 = [{'LOWER': {"IN": lc_time}}]
+        pattern7 = [{'POS': "VERB", 'LEMMA': {"IN": lc_absence}}]
+        pattern8 = [{'POS': "AUX", 'LEMMA': {"IN":["sein", "wird", "müssen", "dürfen"]}}]
+        patternF = [{'TEXT': "?"}]
 
+        # Hinzufügen der Patterns zum Matcher
+        self.matcher.add("Einschätzung", [pattern1])
+        self.matcher.add("Einschätzung", [pattern2])
+        self.matcher.add("Einschätzung", [pattern3])
+        self.matcher.add("Einschätzung", [pattern4])
+        self.matcher.add("Einschätzung", [pattern5])
+        self.matcher.add("Einschätzung", [pattern6])
+        self.matcher.add("Einschätzung", [pattern7])
+        self.matcher.add("Anforderung", [pattern8])
+        self.matcher.add("Frage", [patternF])
 
+    def recognizePatterns(self, input):
+            '''
+            Method to identify the patterns in a comment.
+
+            Parameters
+            -----------
+            input : String
+                text which is scanned for patterns 
+            
+            Returns
+            -----------
+            matched_spans : list
+                list of matched spans which correspond to a pattern
+            '''
+
+            doc = self.nlp(input)
+
+            # Find matches in the input document
+            matches = self.matcher(doc)
+
+            # Extract matched spans from the document
+            matched_spans = [(doc[start:end], self.matcher.vocab.strings[match_id]) for match_id, start, end in matches]
+
+            return matched_spans
 
     def labelTopics(self, topics):
         '''
@@ -245,6 +302,7 @@ class nlpProcess(object):
 
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
         pyLDAvis.save_html(vis_data, 'lda_visualization.html')
+
 
     
     def removeStopwords(self, input):
