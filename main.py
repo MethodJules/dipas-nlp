@@ -9,6 +9,9 @@ import pyLDAvis.gensim_models as gensimvis
 import pyLDAvis
 from spacy.lang.de.stop_words import STOP_WORDS
 
+
+
+
 nlpProc = nlpProcess()
 
 input = importJSON.JSONReader("comments_export2.json") 
@@ -43,8 +46,6 @@ print(entities)
 # Remove real names in comments.
 #privacy = nlpProc.filterNames(input)
 #print(privacy)
-<<<<<<< HEAD
-
 
 locations = nlpProc.filterLocations(input)
 # print(locations)
@@ -87,8 +88,6 @@ for label, words in labeled_topics.items():
     print(f"{label}: {words}")
 
 nlpProc.visualizeTopics(labeled_topics)
-=======
->>>>>>> Zerteilen des Preprocessings in einzelne Methoden
 
 # Remove stopwords from each comment.
 preprocess = {}
