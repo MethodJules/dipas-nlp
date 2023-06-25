@@ -1,0 +1,19 @@
+import requests# Für HTTP-Anfragen in Python
+import json# Ermöglicht mit Jason-Daten zu arbeiten
+
+# Definition der Methode mit input eines Wortes und output von Synonymen
+def get_synonyms(word):
+    # URL für API-Zugriff mit Platzhaltern für Wort
+    API_URL = "https://www.openthesaurus.de/synonyme/search?q={}&format=application/json"
+    # Get-Anfrage über request (HTTP) für das Wort an die API
+    response = requests.get(API_URL.format(word))
+
+    # Konvertierung zu JSON-Datei
+    data = json.loads(response.text)
+
+    # Synonyme für das Wort werden extrahiert
+    synonyms = [term['term'] for term in data['synsets'][0]['terms']]
+
+    return synonyms
+# Ausgabe der Synonyme für das eingegebene Wort in die Methode
+print(get_synonyms('intelligent'))
