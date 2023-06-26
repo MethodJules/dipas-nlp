@@ -2,6 +2,8 @@ import requests
 import folium
 from pprint import pprint
 from geopy.geocoders import Nominatim
+from nlpProcess import nlpProcess
+from spacy.tokens import Span
 import importJSON
 from nlpProcess import nlpProcess
 import gensim
@@ -96,6 +98,23 @@ for id, comment in input.items():
         # Apply lowercase transformation
         lowercase_text = nlpProc.lowercase(comment['text'])
         special_char_filter = nlpProc.removeSpecialChar(lowercase_text)
-        no_stop = nlpProc.removeStopwords(special_char_filter)
-        preprocess[id] = no_stop
-print(preprocess)
+        preprocess[id] = special_char_filter
+
+matched_dict = {}
+for key, value in preprocess.items():
+    matched_spans = nlpProc.recognizePatterns(value)
+    matched_dict[key] = matched_spans, value
+
+
+
+for key, (matched_spans, comment_text) in matched_dict.items():
+    if matched_spans:
+        for span, pattern in matched_spans:
+            print("ID:", key)
+            print("Span:", span)
+            print("Pattern:", pattern)
+            print("Comment:", comment_text)
+            print("---")
+
+
+

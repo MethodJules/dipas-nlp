@@ -311,12 +311,12 @@ class nlpProcess(object):
 
         Parameters
         -----------
-        input : String
+        input : str
             comments where the stopwords shall be removed
 
         Returns
         ----------
-        filtered_token : String 
+        filtered_token : str 
            String that contains comment without the identified stopwords
         '''
         
@@ -327,11 +327,63 @@ class nlpProcess(object):
         return filtered_comment
 
     def lowercase(self, input):
+        '''
+        Transforms the input in lowercase letters.
+
+        Parameters
+        -----------
+        input : str
+            text to transform in lowercase
+
+        Returns
+        -----------
+        text : str
+            transformed lowercase text
+        '''
         text = input.lower()
 
         return text
     
     def removeSpecialChar(self, input):
+        '''
+        Removes special characters from the input.
+
+        Parameters
+        -----------
+        input : str
+            text to clean
+
+        Returns
+        -----------
+        text : str
+            cleaned text
+        '''
         text = re.sub(r'[^a-zA-Z0-9äöüß\s]', '', input.replace('\n', ''))
 
         return text
+
+    def recognizePatterns(self, input):
+        doc = self.nlp(input)
+        matcher = Matcher(self.nlp.vocab)
+        # Define your pattern(s)
+        pattern1 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
+        pattern2 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
+
+        # Add patterns to the matcher
+        matcher.add("Einschätzung", [pattern1])
+        matcher.add("Einschätzung", [pattern2])
+
+        # Find matches in the document
+        matches = matcher(doc)
+
+        # Extract matched spans from the document
+        matched_spans = [(doc[start:end], matcher.vocab.strings[match_id]) for match_id, start, end in matches]
+
+        return matched_spans
+    
+    def pos_tagging(self, input):
+        doc = self.nlp(input)
+
+        tagged_tokens = [(token.text, token.pos_) for token in doc]
+    
+        return tagged_tokens
