@@ -1,5 +1,3 @@
-from nlpProcess import nlpProcess
-import importJSON
 import requests
 import folium
 from pprint import pprint
@@ -16,6 +14,7 @@ nlpProc = nlpProcess()
 input_data = importJSON.JSONReader("C:/Users/mhammed/Desktop/comments_export2.json")
 
 
+'''
 # Compute sentiment scores
 for id, comment in input.items():
     scores = nlpProc.analyzeSentiments(comment)
@@ -41,7 +40,7 @@ filtered = nlpProc.removeStopwords(list(input.values()))
 # Find entities in each comment.
 entities = nlpProc.findEntities(input)
 print(entities)
-
+'''
 # Remove real names in comments.
 privacy = nlpProc.filterNames(input)
 print(privacy)
