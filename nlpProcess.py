@@ -1,5 +1,6 @@
 import spacy
 import os
+<<<<<<< HEAD
 from gensim import corpora, models
 import gensim
 import pyLDAvis.gensim as gensimvis
@@ -9,6 +10,9 @@ from spacy.lang.de.stop_words import STOP_WORDS
 
 from gensim.parsing.preprocessing import STOPWORDS
 from spacy.lang.de import German
+=======
+import regex as re
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden
 from spacy_sentiws import spaCySentiWS
 
 class nlpProcess(object):
@@ -90,6 +94,7 @@ class nlpProcess(object):
 
         return relations
     
+<<<<<<< HEAD
     # def removeStopwords(self, comments_input):
     #     '''
     #     Removes the stopwords from a comment dictionary.
@@ -113,6 +118,8 @@ class nlpProcess(object):
     #     return filtered_dict
 
 
+=======
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden
     def filterNames(self, comments_input):
         '''
         Removes real names from comments due to privacy requirements.
@@ -168,14 +175,15 @@ class nlpProcess(object):
                     locations.append(ent.text)
 
         return locations
+<<<<<<< HEAD
 
 
     def removeStopwords(self, comments_input):
-    '''
-    Die Funktion removeStopwords verwendet das spaCy-Sprachmodell, um Stoppwörter aus den Kommentaren zu entfernen. 
-    Dabei werden sowohl Standard-Stoppwörter als auch benutzerdefinierte Stoppwörter berücksichtigt. 
-    Die gefilterten Kommentare werden als Ergebnis zurückgegeben.
-    '''
+        '''
+        Die Funktion removeStopwords verwendet das spaCy-Sprachmodell, um Stoppwörter aus den Kommentaren zu entfernen. 
+        Dabei werden sowohl Standard-Stoppwörter als auch benutzerdefinierte Stoppwörter berücksichtigt. 
+        Die gefilterten Kommentare werden als Ergebnis zurückgegeben.
+        '''
         # Laden des deutschen Sprachmodells von spaCy
         nlp = spacy.load('de_core_news_sm')
 
@@ -195,12 +203,12 @@ class nlpProcess(object):
 
 
     def performTopicModeling(self, comments_input):
-    '''
-    Die gegebene Funktion performTopicModeling führt Topic Modeling auf Basis von 
-    Kommentaren durch. Dabei werden die Kommentartexte tokenisiert, ein Wörterbuch erstellt, 
-    ein Bag-of-Words-Modell erstellt und schließlich ein LDA-Modell trainiert, um Topics zu 
-    generieren. Die generierten Topics werden sortiert und zurückgegeben.
-    '''
+        '''
+        Die gegebene Funktion performTopicModeling führt Topic Modeling auf Basis von 
+        Kommentaren durch. Dabei werden die Kommentartexte tokenisiert, ein Wörterbuch erstellt, 
+        ein Bag-of-Words-Modell erstellt und schließlich ein LDA-Modell trainiert, um Topics zu 
+        generieren. Die generierten Topics werden sortiert und zurückgegeben.
+        '''
         comment_texts = [comment['text'] for comment in comments_input.values()]
         tokenized_texts = []
 
@@ -232,10 +240,10 @@ class nlpProcess(object):
 
 
     def labelTopics(self, topics):
-    '''
-    Die Funktion labelTopics weist den Topics anhand ihrer IDs Labels zu und gibt ein neues Dictionary zurück, 
-    das die Labels und die zugehörigen Wörter enthält.    
-    '''
+        '''
+        Die Funktion labelTopics weist den Topics anhand ihrer IDs Labels zu und gibt ein neues Dictionary zurück, 
+        das die Labels und die zugehörigen Wörter enthält.    
+        '''
         labeled_topics = {}
         for topic_id, topic_words in topics.items():
             if topic_id == 'Topic 1':
@@ -256,11 +264,11 @@ class nlpProcess(object):
         return labeled_topics
 
     def visualizeTopics(self, topics):
-    '''
-    Die Funktion visualizeTopics erstellt eine Visualisierung der Topics mithilfe der 
-    PyLDAvis-Bibliothek. Sie verwendet ein LDA-Modell, um die Topics zu analysieren, 
-    und speichert die Visualisierung als HTML-Datei ab.
-    '''
+        '''
+        Die Funktion visualizeTopics erstellt eine Visualisierung der Topics mithilfe der 
+        PyLDAvis-Bibliothek. Sie verwendet ein LDA-Modell, um die Topics zu analysieren, 
+        und speichert die Visualisierung als HTML-Datei ab.
+        '''
         dictionary = gensim.corpora.Dictionary(topics.values())
         corpus = [dictionary.doc2bow(words) for words in topics.values()]
         lda_model = gensim.models.LdaModel(corpus, num_topics=len(topics), id2word=dictionary)
@@ -268,3 +276,36 @@ class nlpProcess(object):
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
         pyLDAvis.save_html(vis_data, 'lda_visualization.html')
 
+=======
+    
+    def removeStopwords(self, input):
+        '''
+        Removes the stopwords from a comment dictionary.
+
+        Parameters
+        -----------
+        input : String
+            comments where the stopwords shall be removed
+
+        Returns
+        ----------
+        filtered_token : String 
+           String that contains comment without the identified stopwords
+        '''
+        
+        doc = self.nlp(input)
+        filtered_tokens = [token.text for token in doc if not token.is_stop]
+        filtered_comment = ' '.join(filtered_tokens)
+
+        return filtered_comment
+
+    def lowercase(self, input):
+        text = input.lower()
+
+        return text
+    
+    def removeSpecialChar(self, input):
+        text = re.sub(r'[^a-zA-Z0-9äöüß\s]', '', input.replace('\n', ''))
+
+        return text
+>>>>>>> Zerteilen des Preprocessings in einzelne Methoden
