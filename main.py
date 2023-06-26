@@ -49,6 +49,11 @@ print(privacy)
 
 locations = nlpProc.filterLocations(input)
 # print(locations)
+
+'''
+hier wurde die OpenStreetMap Nominatim API verwendet, um die Koordinaten von Straßen 
+in Hamburg abzurufen und sie auf einer Karte mithilfe von Folium anzuzeigen.
+'''
 bbox = "9.8,53.4,10.3,53.7"  # Bounding box von Hamburg
 Straßen_Kordinaten = {}
 for street_name in locations:

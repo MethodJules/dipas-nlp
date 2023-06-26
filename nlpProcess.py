@@ -164,6 +164,11 @@ class nlpProcess(object):
 
 
     def removeStopwords(self, comments_input):
+    '''
+    Die Funktion removeStopwords verwendet das spaCy-Sprachmodell, um Stoppwörter aus den Kommentaren zu entfernen. 
+    Dabei werden sowohl Standard-Stoppwörter als auch benutzerdefinierte Stoppwörter berücksichtigt. 
+    Die gefilterten Kommentare werden als Ergebnis zurückgegeben.
+    '''
         # Laden des deutschen Sprachmodells von spaCy
         nlp = spacy.load('de_core_news_sm')
 
@@ -183,6 +188,12 @@ class nlpProcess(object):
 
 
     def performTopicModeling(self, comments_input):
+    '''
+    Die gegebene Funktion performTopicModeling führt Topic Modeling auf Basis von 
+    Kommentaren durch. Dabei werden die Kommentartexte tokenisiert, ein Wörterbuch erstellt, 
+    ein Bag-of-Words-Modell erstellt und schließlich ein LDA-Modell trainiert, um Topics zu 
+    generieren. Die generierten Topics werden sortiert und zurückgegeben.
+    '''
         comment_texts = [comment['text'] for comment in comments_input.values()]
         tokenized_texts = []
 
@@ -214,6 +225,10 @@ class nlpProcess(object):
 
 
     def labelTopics(self, topics):
+    '''
+    Die Funktion labelTopics weist den Topics anhand ihrer IDs Labels zu und gibt ein neues Dictionary zurück, 
+    das die Labels und die zugehörigen Wörter enthält.    
+    '''
         labeled_topics = {}
         for topic_id, topic_words in topics.items():
             if topic_id == 'Topic 1':
@@ -226,16 +241,6 @@ class nlpProcess(object):
                 label = 'Öffentliche Spielplätze'
             elif topic_id == 'Topic 5':
                 label = 'Spielplatz'
-            # elif topic_id == 'Topic 6':
-            #     label = 'Pflege'
-            # elif topic_id == 'Topic 7':
-            #     label = 'Verbindung'
-            # elif topic_id == 'Topic 8':
-            #     label = 'Spielplatz'
-            # elif topic_id == 'Topic 9':
-            #     label = 'Fußgänger'
-            # elif topic_id == 'Topic 10':
-            #     label = 'Entscheidung'
             else:
                 label = 'Unbekanntes Thema'
 
@@ -244,6 +249,11 @@ class nlpProcess(object):
         return labeled_topics
 
     def visualizeTopics(self, topics):
+    '''
+    Die Funktion visualizeTopics erstellt eine Visualisierung der Topics mithilfe der 
+    PyLDAvis-Bibliothek. Sie verwendet ein LDA-Modell, um die Topics zu analysieren, 
+    und speichert die Visualisierung als HTML-Datei ab.
+    '''
         dictionary = gensim.corpora.Dictionary(topics.values())
         corpus = [dictionary.doc2bow(words) for words in topics.values()]
         lda_model = gensim.models.LdaModel(corpus, num_topics=len(topics), id2word=dictionary)
