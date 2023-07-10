@@ -93,28 +93,32 @@ nlpProc.visualizeTopics(labeled_topics)
 
 
 # Remove stopwords from each comment.
+
 preprocess = {}
 for id, comment in input.items():
         # Apply lowercase transformation
-        lowercase_text = nlpProc.lowercase(comment['text'])
-        special_char_filter = nlpProc.removeSpecialChar(lowercase_text)
-        preprocess[id] = special_char_filter
+        preprocess[id]  = nlpProc.lowercase(comment['text'])
 
 matched_dict = {}
-for key, value in preprocess.items():
-    matched_spans = nlpProc.recognizePatterns(value)
-    matched_dict[key] = matched_spans, value
+for id, comment in preprocess.items():
+    matched_spans = nlpProc.recognizePatterns(comment)
+    matched_dict[id] = matched_spans, comment
 
-
-
-for key, (matched_spans, comment_text) in matched_dict.items():
+for id, (matched_spans, comment_text) in matched_dict.items():
     if matched_spans:
-        for span, pattern in matched_spans:
-            print("ID:", key)
-            print("Span:", span)
-            print("Pattern:", pattern)
-            print("Comment:", comment_text)
-            print("---")
+            for span, pattern in matched_spans:
+                print("ID:", id)
+                print("Span:", span)
+                print("Pattern:", pattern)
+                print("Comment:", comment_text)
+                print("---")
 
 
+            
+'''
+tagged = {}
+for id, comment in input.items():
+    tagged[id] = nlpProc.pos_tagging(comment['text'])
 
+print(tagged)
+'''

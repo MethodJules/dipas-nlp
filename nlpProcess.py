@@ -362,22 +362,58 @@ class nlpProcess(object):
 
         return text
 
-    def recognizePatterns(self, input):
-        doc = self.nlp(input)
-        matcher = Matcher(self.nlp.vocab)
-        # Define your pattern(s)
+    def initializeMatcher(self):
+        synonyms_time = synonymMethod.get_synonyms("momentan")
+        synonyms_time += synonymMethod.get_synonyms("ständig")
+        synonyms_time += synonymMethod.get_synonyms("immer")
+        lc_time = [synonym.lower() for synonym in synonyms_time]
+        synonyms_absence = synonymMethod.get_synonyms("ausbleiben")
+        lc_absence = [synonym.lower() for synonym in synonyms_absence]
+        
+        # Definition der zu identifizierenden Pattern
         pattern1 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
         pattern2 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
+        pattern3 = [{'POS': "ADP"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
+        pattern4 = [{'POS': "ADP"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
+        pattern5 = [{'POS': "AUX", 'LEMMA': {"IN": ["können"]}}]
+        pattern6 = [{'LOWER': {"IN": lc_time}}]
+        pattern7 = [{'POS': "VERB", 'LEMMA': {"IN": lc_absence}}]
+        pattern8 = [{'POS': "AUX", 'LEMMA': {"IN":["sein", "wird", "müssen", "dürfen"]}}]
+        patternF = [{'TEXT': "?"}]
 
-        # Add patterns to the matcher
-        matcher.add("Einschätzung", [pattern1])
-        matcher.add("Einschätzung", [pattern2])
+        # Hinzufügen der Patterns zum Matcher
+        self.matcher.add("Einschätzung", [pattern1])
+        self.matcher.add("Einschätzung", [pattern2])
+        self.matcher.add("Einschätzung", [pattern3])
+        self.matcher.add("Einschätzung", [pattern4])
+        self.matcher.add("Einschätzung", [pattern5])
+        self.matcher.add("Einschätzung", [pattern6])
+        self.matcher.add("Einschätzung", [pattern7])
+        self.matcher.add("Anforderung", [pattern8])
+        self.matcher.add("Frage", [patternF])
 
-        # Find matches in the document
-        matches = matcher(doc)
+    def recognizePatterns(self, input):
+        '''
+        Method to identify the patterns in a comment.
+
+        Parameters
+        -----------
+        input : String
+            text which is scanned for patterns 
+        
+        Returns
+        -----------
+        matched_spans : list
+            list of matched spans which correspond to a pattern
+        '''
+
+        doc = self.nlp(input)
+
+        # Find matches in the input document
+        matches = self.matcher(doc)
 
         # Extract matched spans from the document
-        matched_spans = [(doc[start:end], matcher.vocab.strings[match_id]) for match_id, start, end in matches]
+        matched_spans = [(doc[start:end], self.matcher.vocab.strings[match_id]) for match_id, start, end in matches]
 
         return matched_spans
     
@@ -387,3 +423,12 @@ class nlpProcess(object):
         tagged_tokens = [(token.text, token.pos_) for token in doc]
     
         return tagged_tokens
+    
+    def retrieveLemmas (self, input):
+        doc = self.nlp(input)
+
+        lemmatized = ' '.join([token.lemma_ if token.pos_ == 'VERB' or token.pos_ == 'AUX' else token.text for token in doc])
+
+        return lemmatized
+
+    
