@@ -2,12 +2,17 @@ import requests
 import folium
 from pprint import pprint
 from geopy.geocoders import Nominatim
+from nlpProcess import nlpProcess
+from spacy.tokens import Span
 import importJSON
 from nlpProcess import nlpProcess
 import gensim
 import pyLDAvis.gensim_models as gensimvis
 import pyLDAvis
 from spacy.lang.de.stop_words import STOP_WORDS
+
+
+
 
 nlpProc = nlpProcess()
 
@@ -43,8 +48,6 @@ print(entities)
 # Remove real names in comments.
 #privacy = nlpProc.filterNames(input)
 #print(privacy)
-<<<<<<< HEAD
-
 
 locations = nlpProc.filterLocations(input)
 # print(locations)
@@ -87,15 +90,35 @@ for label, words in labeled_topics.items():
     print(f"{label}: {words}")
 
 nlpProc.visualizeTopics(labeled_topics)
-=======
->>>>>>> Zerteilen des Preprocessings in einzelne Methoden
+
 
 # Remove stopwords from each comment.
+
 preprocess = {}
 for id, comment in input.items():
         # Apply lowercase transformation
-        lowercase_text = nlpProc.lowercase(comment['text'])
-        special_char_filter = nlpProc.removeSpecialChar(lowercase_text)
-        no_stop = nlpProc.removeStopwords(special_char_filter)
-        preprocess[id] = no_stop
-print(preprocess)
+        preprocess[id]  = nlpProc.lowercase(comment['text'])
+
+matched_dict = {}
+for id, comment in preprocess.items():
+    matched_spans = nlpProc.recognizePatterns(comment)
+    matched_dict[id] = matched_spans, comment
+
+for id, (matched_spans, comment_text) in matched_dict.items():
+    if matched_spans:
+            for span, pattern in matched_spans:
+                print("ID:", id)
+                print("Span:", span)
+                print("Pattern:", pattern)
+                print("Comment:", comment_text)
+                print("---")
+
+
+            
+'''
+tagged = {}
+for id, comment in input.items():
+    tagged[id] = nlpProc.pos_tagging(comment['text'])
+
+print(tagged)
+'''
