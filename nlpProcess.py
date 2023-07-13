@@ -94,32 +94,6 @@ class nlpProcess(object):
 
         return relations
     
-<<<<<<< HEAD
-    # def removeStopwords(self, comments_input):
-    #     '''
-    #     Removes the stopwords from a comment dictionary.
-    #
-    #     Parameters
-    #     -----------
-    #     comments_input : dict
-    #         dictionary of comments where for each the stopwords shall be removed
-    #
-    #     Returns
-    #     ----------
-    #     filtered_dict : dict
-    #         dictionary that contains all comments without the identified stopwords
-    #     '''
-    #     filtered_dict = {}
-    #     for id, comment in comments_input.items():
-    #         doc = self.nlp(comment)
-    #         filtered_tokens = [token.text for token in doc if not token.is_stop]
-    #         filtered_dict[id] = filtered_tokens
-    #
-    #     return filtered_dict
-
-
-=======
->>>>>>> Zerteilen des Preprocessings in einzelne Methoden
     def filterNames(self, comments_input):
         '''
         Removes real names from comments due to privacy requirements.
@@ -175,7 +149,6 @@ class nlpProcess(object):
                     locations.append(ent.text)
 
         return locations
-<<<<<<< HEAD
 
 
     def removeStopwords(self, comments_input):
@@ -276,7 +249,6 @@ class nlpProcess(object):
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
         pyLDAvis.save_html(vis_data, 'lda_visualization.html')
 
-=======
     
     def removeStopwords(self, input):
         '''
@@ -308,4 +280,3 @@ class nlpProcess(object):
         text = re.sub(r'[^a-zA-Z0-9äöüß\s]', '', input.replace('\n', ''))
 
         return text
->>>>>>> Zerteilen des Preprocessings in einzelne Methoden
