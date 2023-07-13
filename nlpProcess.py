@@ -1,6 +1,5 @@
 import spacy
 import os
-<<<<<<< HEAD
 from gensim import corpora, models
 import gensim
 import pyLDAvis.gensim as gensimvis
@@ -10,9 +9,7 @@ from spacy.lang.de.stop_words import STOP_WORDS
 
 from gensim.parsing.preprocessing import STOPWORDS
 from spacy.lang.de import German
-=======
 import regex as re
->>>>>>> Zerteilen des Preprocessings in einzelne Methoden
 from spacy_sentiws import spaCySentiWS
 
 class nlpProcess(object):
