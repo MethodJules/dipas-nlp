@@ -6,7 +6,7 @@ from nlpProcess import nlpProcess
 from spacy.tokens import Span
 import importJSON
 #import gensim
-#import pyLDAvis.gensim_models as gensimvis
+import pyLDAvis.gensim_models as gensimvis
 #import pyLDAvis
 from spacy.lang.de.stop_words import STOP_WORDS
 
@@ -45,10 +45,18 @@ filtered = nlpProc.removeStopwords(list(input.values()))
 entities = nlpProc.findEntities(input)
 print(entities)
 '''
-# Remove real names in comments.
-#privacy = nlpProc.filterNames(input)
-#print(privacy)
+#Remove real names in comments.
 
+# Laden der Namen aus den TXT-Dateien in Sets
+vornamen = nlpProc.load_txt('vornamen_deutsch.txt')
+nachnamen = nlpProc.load_txt('nachnamen_deutsch.txt')
+
+<<<<<<< HEAD
+=======
+privacy = nlpProc.filterNames(input, vornamen, nachnamen)
+print(privacy)
+
+>>>>>>> Methode zur Erkennung von Klarnamen wurde überarbeitet.
 #locations = nlpProc.filterLocations(input)
 # print(locations)
 
@@ -91,7 +99,11 @@ for label, words in labeled_topics.items():
 
 nlpProc.visualizeTopics(labeled_topics)
 
+<<<<<<< HEAD
 '''
+=======
+
+>>>>>>> Methode zur Erkennung von Klarnamen wurde überarbeitet.
 # Remove stopwords from each comment.
 
 preprocess = {}
@@ -118,7 +130,11 @@ for comment_pair in similar_comments:
     print()
 
 print(f"Number of Similar Comments Found: {num_similar_comments}")
+<<<<<<< HEAD
 '''
+=======
+
+>>>>>>> Methode zur Erkennung von Klarnamen wurde überarbeitet.
 matched_dict = {}
 for id, comment in preprocess.items():
     matched_spans = nlpProc.recognizePatterns(comment)
