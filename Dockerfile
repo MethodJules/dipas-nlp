@@ -13,6 +13,10 @@ RUN python3 -m pip install nltk
 RUN python3 -m pip install spacy-sentiws
 RUN python3 -m pip install pandas
 RUN python3 -m pip install openpyxl
+RUN python3 -m pip install gensim
+RUN python3 -m pip install pyldavis
+RUN python3 -m pip install neo4j
+
 
 
 EXPOSE 5000

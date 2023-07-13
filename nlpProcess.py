@@ -4,10 +4,11 @@ from spacy.tokens import Span
 import os
 from gensim import corpora, models
 import gensim
-import pyLDAvis.gensim as gensimvis
+import pyLDAvis.gensim_models as gensimvis
 import pyLDAvis
 import spacy
 from spacy.lang.de.stop_words import STOP_WORDS
+from neo4jHandler import neo4jConnector
 from gensim.parsing.preprocessing import STOPWORDS
 from spacy.lang.de import German
 import regex as re
@@ -33,6 +34,10 @@ class nlpProcess(object):
         self.matcher = Matcher(self.nlp.vocab)
         self.initializeMatcher()
     
+
+    def connect_db(self):
+        self.driver = neo4jConnector()
+    
     def analyzeSentiments(self, text):
         sentiment_scores = []
 
@@ -42,6 +47,11 @@ class nlpProcess(object):
             # print('{},{},{}'.format(token.text, token._.sentiws, token.pos_))
             sentiment_scores.append({'text': token.text, 'sentiment_score': token._.sentiws, 'POS': token.pos_})
         return sentiment_scores
+    
+    def getOverallSentimentScore(self, sentiment_scores):
+        res = [ sub['sentiment_score'] for sub in sentiment_scores]
+        overallSentimentScore = sum(filter(None, res))
+        return overallSentimentScore
     
     def findEntities(self, comments_input):
         '''
@@ -66,6 +76,15 @@ class nlpProcess(object):
             entity_dict[id] = entity_list
         return entity_dict
     
+    def findEntitiesForComment(self, comment):
+
+        doc = self.nlp(comment)
+        entity_list = []
+        for ent in doc.ents:
+            entity_list.append({'Entität': ent.text,'Typ': ent.label_})
+                
+        return entity_list
+
     def extractRelations(self, comment):
         '''
         Analyzes for comments which relations are contained.
@@ -96,6 +115,28 @@ class nlpProcess(object):
 
         return relations
     
+    # def removeStopwords(self, comments_input):
+    #     '''
+    #     Removes the stopwords from a comment dictionary.
+    #
+    #     Parameters
+    #     -----------
+    #     comments_input : dict
+    #         dictionary of comments where for each the stopwords shall be removed
+    #
+    #     Returns
+    #     ----------
+    #     filtered_dict : dict
+    #         dictionary that contains all comments without the identified stopwords
+    #     '''
+    #     filtered_dict = {}
+    #     for id, comment in comments_input.items():
+    #         doc = self.nlp(comment)
+    #         filtered_tokens = [token.text for token in doc if not token.is_stop]
+    #         filtered_dict[id] = filtered_tokens
+    #
+    #     return filtered_dict
+
 
     def filterNames(self, comments_input):
         '''
@@ -152,6 +193,17 @@ class nlpProcess(object):
                     locations.append(ent.text)
 
         return locations
+    
+    def filterLocationsForComment(self, comment):
+            
+        locations = []
+        doc = self.nlp(comment)
+        for ent in doc.ents:
+            if ent.label_ == 'LOC':
+                locations.append(ent.text)
+
+        return locations
+
 
     def removeStopwords(self, comments_input):
         '''
@@ -302,7 +354,6 @@ class nlpProcess(object):
 
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
         pyLDAvis.save_html(vis_data, 'lda_visualization.html')
-
 
     
     def removeStopwords(self, input):

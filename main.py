@@ -49,6 +49,7 @@ print(entities)
 #privacy = nlpProc.filterNames(input)
 #print(privacy)
 
+
 locations = nlpProc.filterLocations(input)
 # print(locations)
 
@@ -90,7 +91,6 @@ for label, words in labeled_topics.items():
     print(f"{label}: {words}")
 
 nlpProc.visualizeTopics(labeled_topics)
-
 
 # Remove stopwords from each comment.
 
