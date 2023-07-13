@@ -84,7 +84,7 @@ map_osm.save("map_osm.html")
 
 
 # Topic Modeling
-topics = nlpProc.performTopicModeling(input_data)
+topics = nlpProc.performTopicModeling(input)
 labeled_topics = nlpProc.labelTopics(topics)
 
 for label, words in labeled_topics.items():
