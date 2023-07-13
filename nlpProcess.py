@@ -14,6 +14,9 @@ from spacy.lang.de import German
 import regex as re
 from spacy_sentiws import spaCySentiWS
 import synonymMethod
+from sklearn.metrics.pairwise import cosine_similarity
+import itertools
+import numpy as np
 
 class nlpProcess(object):
     nlp = None
@@ -33,7 +36,6 @@ class nlpProcess(object):
 
         self.matcher = Matcher(self.nlp.vocab)
         self.initializeMatcher()
-    
 
     def connect_db(self):
         self.driver = neo4jConnector()
@@ -114,29 +116,6 @@ class nlpProcess(object):
                     relations.append((subj, verb, obj))
 
         return relations
-    
-    # def removeStopwords(self, comments_input):
-    #     '''
-    #     Removes the stopwords from a comment dictionary.
-    #
-    #     Parameters
-    #     -----------
-    #     comments_input : dict
-    #         dictionary of comments where for each the stopwords shall be removed
-    #
-    #     Returns
-    #     ----------
-    #     filtered_dict : dict
-    #         dictionary that contains all comments without the identified stopwords
-    #     '''
-    #     filtered_dict = {}
-    #     for id, comment in comments_input.items():
-    #         doc = self.nlp(comment)
-    #         filtered_tokens = [token.text for token in doc if not token.is_stop]
-    #         filtered_dict[id] = filtered_tokens
-    #
-    #     return filtered_dict
-
 
     def filterNames(self, comments_input):
         '''
@@ -203,7 +182,6 @@ class nlpProcess(object):
                 locations.append(ent.text)
 
         return locations
-
 
     def removeStopwords(self, comments_input):
         '''
@@ -354,7 +332,6 @@ class nlpProcess(object):
 
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
         pyLDAvis.save_html(vis_data, 'lda_visualization.html')
-
     
     def removeStopwords(self, input):
         '''
@@ -413,36 +390,6 @@ class nlpProcess(object):
 
         return text
 
-    def initializeMatcher(self):
-        synonyms_time = synonymMethod.get_synonyms("momentan")
-        synonyms_time += synonymMethod.get_synonyms("ständig")
-        synonyms_time += synonymMethod.get_synonyms("immer")
-        lc_time = [synonym.lower() for synonym in synonyms_time]
-        synonyms_absence = synonymMethod.get_synonyms("ausbleiben")
-        lc_absence = [synonym.lower() for synonym in synonyms_absence]
-        
-        # Definition der zu identifizierenden Pattern
-        pattern1 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
-        pattern2 = [{'POS': "ADP"}, {'POS': "DET"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
-        pattern3 = [{'POS': "ADP"}, {'POS': "NOUN", 'ENT_TYPE': "LOC"}]
-        pattern4 = [{'POS': "ADP"}, {'POS': "PROPN", 'ENT_TYPE': "LOC"}]
-        pattern5 = [{'POS': "AUX", 'LEMMA': {"IN": ["können"]}}]
-        pattern6 = [{'LOWER': {"IN": lc_time}}]
-        pattern7 = [{'POS': "VERB", 'LEMMA': {"IN": lc_absence}}]
-        pattern8 = [{'POS': "AUX", 'LEMMA': {"IN":["sein", "wird", "müssen", "dürfen"]}}]
-        patternF = [{'TEXT': "?"}]
-
-        # Hinzufügen der Patterns zum Matcher
-        self.matcher.add("Einschätzung", [pattern1])
-        self.matcher.add("Einschätzung", [pattern2])
-        self.matcher.add("Einschätzung", [pattern3])
-        self.matcher.add("Einschätzung", [pattern4])
-        self.matcher.add("Einschätzung", [pattern5])
-        self.matcher.add("Einschätzung", [pattern6])
-        self.matcher.add("Einschätzung", [pattern7])
-        self.matcher.add("Anforderung", [pattern8])
-        self.matcher.add("Frage", [patternF])
-
     def recognizePatterns(self, input):
         '''
         Method to identify the patterns in a comment.
@@ -481,5 +428,24 @@ class nlpProcess(object):
         lemmatized = ' '.join([token.lemma_ if token.pos_ == 'VERB' or token.pos_ == 'AUX' else token.text for token in doc])
 
         return lemmatized
-
     
+    def vectorize(self, input):
+        doc = self.nlp(input)
+        vector = doc.vector
+        return vector
+    
+    def calculate_similarities(self, comments, threshold):
+        keys = list(comments.keys())
+        vectors = {key: self.vectorize(comment) for key, comment in comments.items()}
+        similar_comments = []
+
+        keys_len = len(keys)
+        vecs = np.array([vectors[key] for key in keys])
+
+        similarity_matrix = cosine_similarity(vecs)
+
+        for i, j in itertools.combinations(range(keys_len), 2):
+            if similarity_matrix[i, j] >= threshold:
+                similar_comments.append((keys[i], keys[j], similarity_matrix[i, j]))
+
+        return similar_comments
