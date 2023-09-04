@@ -1,3 +1,5 @@
+from nlpProcess import nlpProcess
+import importJSON
 import requests
 #import folium
 from pprint import pprint
@@ -9,6 +11,11 @@ import importJSON
 import pyLDAvis.gensim_models as gensimvis
 #import pyLDAvis
 from spacy.lang.de.stop_words import STOP_WORDS
+import csv
+import pandas as pd
+import glob
+import nltk
+nltk.download('vader_lexicon')
 
 
 
@@ -16,9 +23,9 @@ from spacy.lang.de.stop_words import STOP_WORDS
 
 nlpProc = nlpProcess()
 
-input = importJSON.JSONReader("comments_export2.json") 
+input_data = importJSON.JSONReader("comments_export_all.json")
+# print(len(input_data))
 
-'''
 # Compute sentiment scores
 for id, comment in input.items():
     scores = nlpProc.analyzeSentiments(comment)
@@ -91,7 +98,7 @@ map_osm.save("map_osm.html")
 
 
 # Topic Modeling
-topics = nlpProc.performTopicModeling(input)
+topics = nlpProc.performTopicModeling(input_data)
 labeled_topics = nlpProc.labelTopics(topics)
 
 for label, words in labeled_topics.items():
@@ -99,12 +106,6 @@ for label, words in labeled_topics.items():
 
 nlpProc.visualizeTopics(labeled_topics)
 
-<<<<<<< HEAD
-'''
-=======
-
->>>>>>> Methode zur Erkennung von Klarnamen wurde überarbeitet.
-# Remove stopwords from each comment.
 
 preprocess = {}
 for id, comment in input.items():
