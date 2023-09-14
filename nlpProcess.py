@@ -117,7 +117,8 @@ class nlpProcess(object):
 
         return relations
 
-    def filterNames(self, comments_input):
+
+    def filterNames(self, comments_input, vornamen, nachnamen):
         '''
         Removes real names from comments due to privacy requirements.
 
@@ -133,21 +134,37 @@ class nlpProcess(object):
             format: {comment_id {comment, name}}
         '''
         filtered_dict = {}
+
         for id, comment in comments_input.items():
-            doc = self.nlp(comment['text'])
-            filteredComment = comment['text']
+
+            tokens = self.nlp(comment['text'])
+            cleanedComment = comment['text']
             names = []
-            for ent in doc.ents:
-                if ent.label_ == 'PER':
-                    names.append(ent.text)
-                    filteredComment = filteredComment.replace(ent.text, "<Klarname entfernt>")
+            
+            for i, token in enumerate(tokens):
+                followup_token = tokens[i + 1] if i + 1 < len(tokens) else None
+                
+                # Überprüfen, ob das Token in den Vornamen und sein Nachfolger in den Nachnamen enthalten ist
+                if token.text in vornamen and followup_token is not None and followup_token.text in nachnamen:
+                    names.append(token.text + " " + followup_token.text)
+                    cleanedComment = cleanedComment.replace(token.text, "<Klarname entfernt>")
+                    cleanedComment = cleanedComment.replace(followup_token.text, "")
+            
+            # Wenn mindestens ein Name gefunden wurde, speichern Sie den gefilterten Kommentar
             if names:
                 filtered_dict[id] = {
-                    'comment': filteredComment,
+                    'comment': cleanedComment,
                     'names': names
                 }
-
+        
         return filtered_dict
+    
+    def load_txt(self, txt_file):
+        names_set = set()
+        with open(txt_file, 'r', encoding='utf-8') as file:
+            for line in file:
+                names_set.add(line.strip())
+        return names_set
     
     def filterLocations(self, comments_input):
         '''
