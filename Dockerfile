@@ -16,6 +16,8 @@ RUN python3 -m pip install openpyxl
 RUN python3 -m pip install gensim
 RUN python3 -m pip install pyldavis
 RUN python3 -m pip install neo4j
+RUN python3 -m pip install folium
+RUN python3 -m pip install tqdm
 
 
 
