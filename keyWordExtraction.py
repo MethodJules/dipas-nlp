@@ -9,10 +9,13 @@ from sklearn.feature_extraction.text import TfidfTransformer
 Loads from the given file path custom stopwords into a list
 Source of the stopwords: https://github.com/solariz/german_stopwords
 '''
+
+
 def load_custom_stopwords(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         stopwords = [word.strip() for word in file.readlines()]
     return stopwords
+
 
 '''
 Custom preprocessing methood for all functions regarding the keyword extraction.
@@ -30,6 +33,8 @@ Lemmatization
 Converting to lowercase
 Remove stopwords
 '''
+
+
 def preprocessing_keywords(df):
 
     nlp = spacy.load("de_core_news_lg")
@@ -64,12 +69,15 @@ def preprocessing_keywords(df):
         df.at[index, "modified_text"] = text
     return df
 
+
 '''
 Calculates the tfidf values for each word over the entire corpus and sums them up. In addition, the number of times each word occurs in the corpus is counted.
 The keywords are sorted by the summed tfidf values and stored in a list together with the word frequency.
 Input is a preprocessed pandas dataframe, which contains the column "modified_text" and the number of keywords which should be returned, which is also equal to the length of the list.
 Output is a list with keywords, summed tfidf values and word frequency.
 '''
+
+
 def corpus_keywords(df_preprocessed, number_keywords):
     df_list = df_preprocessed["modified_text"].tolist()
     cv = CountVectorizer(max_df = 0.75)
